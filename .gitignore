@@ -1,0 +1,42 @@
+# ── Secrets ──────────────────────────────────────────────
+.env
+*.env
+
+# ── Nuxt build artifacts ──────────────────────────────────
+.nuxt/
+.output/
+dist/
+
+# ── Node ─────────────────────────────────────────────────
+node_modules/
+package-lock.json
+
+# ── Databases ────────────────────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+
+# ── Flutter / Dart ───────────────────────────────────────
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# ── Tools / Local ────────────────────────────────────────
+.playwright-mcp/
+.claude/
+
+# ── IDE / OS ─────────────────────────────────────────────
+.DS_Store
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# ── Flutter metadata ──────────────────────────────────────
+.metadata
