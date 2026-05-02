@@ -5,10 +5,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'title is required' })
   }
 
-  const db = useDb()
+  const sql = useDb()
   const parent = body.parent ?? null
 
-  const result = db.prepare('INSERT INTO folder (title, parent) VALUES (?, ?)').run(body.title, parent)
+  const [folder] = await sql`
+    INSERT INTO folder (title, parent) VALUES (${body.title}, ${parent})
+    RETURNING id, parent, title, outline
+  `
 
-  return db.prepare('SELECT id, parent, title FROM folder WHERE id = ?').get(result.lastInsertRowid)
+  return folder
 })

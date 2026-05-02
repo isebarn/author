@@ -4,17 +4,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid folder id' })
   }
 
-  const db = useDb()
-  const existing = db.prepare('SELECT id, parent, title FROM folder WHERE id = ?').get(id)
+  const sql = useDb()
+  const [existing] = await sql`SELECT id, parent, title FROM folder WHERE id = ${id}`
   if (!existing) {
     throw createError({ statusCode: 404, statusMessage: 'Folder not found' })
   }
 
   const body = await readBody(event)
-  const title = body?.title ?? (existing as any).title
-  const parent = body?.parent !== undefined ? body.parent : (existing as any).parent
+  const title = body?.title ?? existing.title
+  const parent = body?.parent !== undefined ? body.parent : existing.parent
 
-  db.prepare('UPDATE folder SET title = ?, parent = ? WHERE id = ?').run(title, parent, id)
+  await sql`UPDATE folder SET title = ${title}, parent = ${parent} WHERE id = ${id}`
 
-  return db.prepare('SELECT id, parent, title FROM folder WHERE id = ?').get(id)
+  const [folder] = await sql`SELECT id, parent, title, outline FROM folder WHERE id = ${id}`
+  return folder
 })

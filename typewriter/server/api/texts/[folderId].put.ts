@@ -5,14 +5,12 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const content = body?.content ?? ''
 
-  const db = useDb()
-  const existing = db.prepare('SELECT id FROM texts WHERE folder = ?').get(Number(folderId))
+  const sql = useDb()
+  const [row] = await sql`
+    INSERT INTO texts (folder, content) VALUES (${Number(folderId)}, ${content})
+    ON CONFLICT (folder) DO UPDATE SET content = EXCLUDED.content
+    RETURNING *
+  `
 
-  if (existing) {
-    db.prepare('UPDATE texts SET content = ? WHERE folder = ?').run(content, Number(folderId))
-  } else {
-    db.prepare('INSERT INTO texts (folder, content) VALUES (?, ?)').run(Number(folderId), content)
-  }
-
-  return db.prepare('SELECT * FROM texts WHERE folder = ?').get(Number(folderId))
+  return row
 })

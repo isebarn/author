@@ -1,9 +1,9 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const folderId = getRouterParam(event, 'folderId')
   if (!folderId) throw createError({ statusCode: 400, message: 'folderId required' })
 
-  const db = useDb()
-  const row = db.prepare('SELECT * FROM texts WHERE folder = ?').get(Number(folderId))
+  const sql = useDb()
+  const [row] = await sql`SELECT * FROM texts WHERE folder = ${Number(folderId)}`
 
   if (!row) {
     return { id: null, folder: Number(folderId), content: '' }

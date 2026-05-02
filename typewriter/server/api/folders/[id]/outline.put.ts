@@ -7,13 +7,13 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const outline = typeof body?.outline === 'string' ? body.outline : ''
 
-  const db = useDb()
-  const existing = db.prepare('SELECT id FROM folder WHERE id = ?').get(id)
+  const sql = useDb()
+  const [existing] = await sql`SELECT id FROM folder WHERE id = ${id}`
   if (!existing) {
     throw createError({ statusCode: 404, statusMessage: 'Folder not found' })
   }
 
-  db.prepare('UPDATE folder SET outline = ? WHERE id = ?').run(outline, id)
+  await sql`UPDATE folder SET outline = ${outline} WHERE id = ${id}`
 
   return { outline }
 })

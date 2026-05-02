@@ -1,13 +1,13 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
   if (!id || isNaN(id)) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid folder id' })
   }
 
-  const db = useDb()
-  const result = db.prepare('DELETE FROM folder WHERE id = ?').run(id)
+  const sql = useDb()
+  const result = await sql`DELETE FROM folder WHERE id = ${id}`
 
-  if (result.changes === 0) {
+  if (result.count === 0) {
     throw createError({ statusCode: 404, statusMessage: 'Folder not found' })
   }
 
