@@ -13,6 +13,15 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null
 const showCoach = ref(false)
 const coachLoading = ref(false)
 const coachFeedback = ref('')
+const shareCopied = ref(false)
+
+function shareChapter() {
+  if (!store.currentFolderId) return
+  const url = `${window.location.origin}/preview/${store.currentFolderId}`
+  navigator.clipboard.writeText(url)
+  shareCopied.value = true
+  setTimeout(() => { shareCopied.value = false }, 2000)
+}
 
 const ParagraphOpacity = Extension.create({
   name: 'paragraphOpacity',
@@ -160,6 +169,20 @@ onBeforeUnmount(() => {
         <EditorContent :editor="editor" class="text-editor text-ink w-full" />
       </template>
     </PageFeel>
+
+    <!-- Share button -->
+    <button
+      class="absolute right-6 bottom-[5.5rem] w-8 h-8 rounded-full bg-blue-200/70 hover:bg-blue-300/90 shadow-sm flex items-center justify-center transition-colors"
+      :title="shareCopied ? 'Copied!' : 'Copy share link'"
+      @click="shareChapter"
+    >
+      <svg v-if="!shareCopied" viewBox="0 0 16 16" class="w-4 h-4 text-blue-600" fill="currentColor">
+        <path d="M11 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-7 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm7 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM4.5 7.1l4 2.3-.6 1-4-2.3.6-1zm3.4-2.4.6 1-4 2.3-.6-1 4-2.3z"/>
+      </svg>
+      <svg v-else viewBox="0 0 16 16" class="w-4 h-4 text-blue-600" fill="currentColor">
+        <path d="M13.5 2.5l-8 8-3-3-1 1 4 4 9-9-1-1z"/>
+      </svg>
+    </button>
 
     <!-- Writing Coach button -->
     <button

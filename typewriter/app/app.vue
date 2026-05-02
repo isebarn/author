@@ -2,11 +2,15 @@
 import { useBookStore } from '~/stores/bookstore'
 
 const store = useBookStore()
+const route = useRoute()
+const isPreview = computed(() => route.path.startsWith('/preview'))
 
-// Load all data on app mount
+// Load all data on app mount (skip for preview pages — they fetch independently)
 onMounted(async () => {
-  await store.loadAll()
-  window.addEventListener('keydown', handleGlobalKeydown)
+  if (!isPreview.value) {
+    await store.loadAll()
+    window.addEventListener('keydown', handleGlobalKeydown)
+  }
 })
 
 onUnmounted(() => {
@@ -28,7 +32,11 @@ function handleGlobalKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="flex h-screen bg-paper overflow-hidden">
+  <!-- Preview pages render standalone, no sidebar or store loading -->
+  <NuxtPage v-if="isPreview" />
+
+  <!-- Main app -->
+  <div v-else class="flex h-screen bg-paper overflow-hidden">
     <!-- Sidebar -->
     <transition name="slide">
       <Sidebar
