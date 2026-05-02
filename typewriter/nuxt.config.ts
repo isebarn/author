@@ -11,6 +11,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/eslint',
   ],
+  nitro: {
+    externals: {
+      external: ['better-sqlite3'],
+    },
+  },
   css: ['~/assets/css/main.css'],
   app: {
     head: {

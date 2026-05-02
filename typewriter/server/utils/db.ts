@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3'
 import { join } from 'path'
 
-const dbPath = join(process.cwd(), 'bookwriter.db')
+const dbPath = process.env.DB_PATH ?? join(process.cwd(), 'bookwriter.db')
 
 const db = new Database(dbPath)
 
