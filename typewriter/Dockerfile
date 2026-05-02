@@ -11,6 +11,6 @@ COPY --from=build /app/.output /app/.output
 COPY --from=build /app/package*.json ./
 RUN npm install --omit=dev
 ENV HOST=0.0.0.0
-ENV PORT=3010
-EXPOSE 3010
+ENV PORT=3050
+EXPOSE 3050
 CMD ["node", ".output/server/index.mjs"]

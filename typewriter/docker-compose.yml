@@ -18,7 +18,7 @@ services:
   app:
     build: .
     ports:
-      - "3010:3010"
+      - "3050:3050"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/bookwriter
       OPENAI_API_KEY: ${OPENAI_API_KEY}
