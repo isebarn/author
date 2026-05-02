@@ -4,6 +4,7 @@ export interface Folder {
   id: number
   parent: number | null
   title: string
+  outline?: string
 }
 
 export interface FolderTreeNode extends Folder {
@@ -15,6 +16,8 @@ export const useBookStore = defineStore('bookstore', {
     folders: [] as Folder[],
     // Map from folderId to HTML content string
     folderContents: new Map<number, string>(),
+    // Map from folderId to outline text (lazy-loaded)
+    folderOutlines: new Map<number, string>(),
     currentFolderId: null as number | null,
     // The br ID that marks where focus is (text after this br is the "current" block)
     currentBrId: null as string | null,
@@ -129,6 +132,18 @@ export const useBookStore = defineStore('bookstore', {
         method: 'PUT',
         body: { content },
       })
+    },
+
+    async loadOutline(id: number): Promise<string> {
+      if (this.folderOutlines.has(id)) return this.folderOutlines.get(id)!
+      const data = await $fetch<{ outline: string }>(`/api/folders/${id}/outline`)
+      this.folderOutlines.set(id, data.outline)
+      return data.outline
+    },
+
+    async saveOutline(id: number, outline: string) {
+      await $fetch(`/api/folders/${id}/outline`, { method: 'PUT', body: { outline } })
+      this.folderOutlines.set(id, outline)
     },
 
     toggleFocusMode() {

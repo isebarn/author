@@ -22,6 +22,12 @@ db.exec(`
   );
 `)
 
+try {
+  db.exec(`ALTER TABLE folder ADD COLUMN outline TEXT NOT NULL DEFAULT ''`)
+} catch (_) {
+  // column already exists
+}
+
 export function useDb() {
   return db
 }

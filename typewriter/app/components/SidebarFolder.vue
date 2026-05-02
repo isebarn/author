@@ -16,6 +16,7 @@ const editTitle = ref('')
 const editInput = ref<HTMLInputElement>()
 const showMenu = ref(false)
 const showSubfolderModal = ref(false)
+const showOutline = ref(false)
 
 const isActive = computed(() => store.currentFolderId === props.node.id)
 const hasChildren = computed(() => props.node.children.length > 0)
@@ -109,6 +110,13 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
       />
       <span v-else class="flex-1 min-w-0 truncate font-ui">{{ node.title }}</span>
 
+      <!-- outline circle -->
+      <button
+        class="w-3.5 h-3.5 rounded-full bg-blue-200/80 hover:bg-blue-300 shrink-0 transition-colors"
+        title="Outline / Story context"
+        @click.stop="showOutline = true"
+      />
+
       <!-- hover + icon for subfolder -->
       <button
         class="w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-60 hover:!opacity-100 text-ink-light shrink-0"
@@ -162,6 +170,14 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
       :parent-name="node.title"
       @confirm="handleCreateSubfolder"
       @cancel="showSubfolderModal = false"
+    />
+
+    <!-- outline modal -->
+    <OutlineModal
+      v-if="showOutline"
+      :folder-id="node.id"
+      :folder-title="node.title"
+      @close="showOutline = false"
     />
   </li>
 </template>
