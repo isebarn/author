@@ -13,6 +13,8 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null
 const showCoach = ref(false)
 const coachLoading = ref(false)
 const coachFeedback = ref('')
+const coachSuggestion = ref<string | null>(null)
+const coachParagraph = ref('')
 const shareCopied = ref(false)
 
 function shareChapter() {
@@ -58,6 +60,13 @@ const editor = useEditor({
       const text = event.clipboardData?.getData('text/plain') ?? ''
       view.dispatch(view.state.tr.insertText(text))
       return true
+    },
+    handleKeyDown(_view, event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'm') {
+        event.preventDefault()
+        openCoach()
+        return true
+      }
     },
   },
   onUpdate({ editor }) {
@@ -131,12 +140,15 @@ async function openCoach() {
 
   coachLoading.value = true
   coachFeedback.value = ''
+  coachSuggestion.value = null
+  coachParagraph.value = paraText
   showCoach.value = true
 
   try {
-    const res = await $fetch<{ feedback: string }>('/api/coach', {
+    const res = await $fetch<{ feedback: string; suggestion: string | null }>('/api/coach', {
       method: 'POST',
       body: {
+        folderId: currentFolder.id,
         currentParagraph: paraText,
         chapterOutline,
         bookOutline,
@@ -146,11 +158,27 @@ async function openCoach() {
       },
     })
     coachFeedback.value = res.feedback
+    coachSuggestion.value = res.suggestion ?? null
   } catch (e: any) {
     coachFeedback.value = `Error: ${e?.message ?? 'Could not reach the coach'}`
   } finally {
     coachLoading.value = false
   }
+}
+
+function acceptSuggestion(text: string) {
+  if (!editor.value) return
+  const { state } = editor.value
+  const resolved = state.doc.resolve(state.selection.from)
+  for (let d = resolved.depth; d >= 0; d--) {
+    if (resolved.node(d).type.name === 'paragraph') {
+      const from = resolved.start(d)
+      const to = resolved.end(d)
+      editor.value.chain().focus().setTextSelection({ from, to }).insertContent(text).run()
+      break
+    }
+  }
+  showCoach.value = false
 }
 
 onBeforeUnmount(() => {
@@ -195,12 +223,15 @@ onBeforeUnmount(() => {
       </svg>
     </button>
 
-    <!-- Coach modal -->
-    <CoachModal
+    <!-- Coach bubble -->
+    <CoachBubble
       v-if="showCoach"
       :feedback="coachFeedback"
+      :suggestion="coachSuggestion"
+      :original-paragraph="coachParagraph"
       :loading="coachLoading"
       @close="showCoach = false"
+      @accept="acceptSuggestion"
     />
   </div>
 </template>

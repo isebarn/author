@@ -6,6 +6,11 @@ export default defineNuxtConfig({
     host: '0.0.0.0',
   },
   devtools: { enabled: true },
+  nitro: {
+    // better-sqlite3 is a native module — don't bundle it.
+    // In prod (DATABASE_URL set) this code path is never reached anyway.
+    externals: { external: ['better-sqlite3'] },
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
