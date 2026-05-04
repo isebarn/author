@@ -3,7 +3,7 @@ import { useBookStore } from '~/stores/bookstore'
 
 const store = useBookStore()
 const route = useRoute()
-const isPreview = computed(() => route.path.startsWith('/preview'))
+const isPreview = computed(() => route.path.startsWith('/preview') || route.path === '/babajaka')
 
 // Load all data on app mount (skip for preview pages — they fetch independently)
 onMounted(async () => {

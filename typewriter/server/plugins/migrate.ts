@@ -28,6 +28,14 @@ export default defineNitroPlugin(async () => {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `
+    await sql`
+      CREATE TABLE IF NOT EXISTS visitors (
+        ip TEXT PRIMARY KEY,
+        first_seen TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_seen TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        visit_count INTEGER NOT NULL DEFAULT 1
+      )
+    `
     // Upgrade existing tables
     await sql`ALTER TABLE coach_replies ADD COLUMN IF NOT EXISTS suggestion TEXT`
   } else {
@@ -54,6 +62,14 @@ export default defineNitroPlugin(async () => {
         feedback TEXT NOT NULL,
         suggestion TEXT,
         created_at TEXT DEFAULT (datetime('now'))
+      )
+    `
+    await sql`
+      CREATE TABLE IF NOT EXISTS visitors (
+        ip TEXT PRIMARY KEY,
+        first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        visit_count INTEGER NOT NULL DEFAULT 1
       )
     `
     // Upgrade existing SQLite tables
